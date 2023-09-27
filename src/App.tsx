@@ -1,10 +1,11 @@
 import { useCallback } from "react";
 
 import { User as FirebaseUser } from "firebase/auth";
-import { Authenticator, FirebaseCMSApp } from "firecms";
+import { Authenticator, CMSView, FirebaseCMSApp } from "firecms";
 
 import "typeface-rubik";
 import "@fontsource/ibm-plex-mono";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import { app, firebaseConfig } from "./firebase-config.ts";
 import { productsCollection } from "./collections/products.tsx";
@@ -16,6 +17,8 @@ import { usersCollection } from "./collections/users.tsx";
 import { useFirestoreDataSource } from "firecms";
 import { salesCollection } from "./collections/sales.tsx";
 import { productSalesCollection } from "./collections/product_sale.tsx";
+import { ReportsView } from "./views/ReportsView.tsx";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 
 export type Product = {
   name: string;
@@ -60,20 +63,33 @@ export default function App() {
     [dataSource]
   );
 
+  const customViews: CMSView[] = [
+    {
+      path: "reports",
+      name: "Generate Reports",
+
+      // This can be any React component
+      view: <ReportsView />,
+    },
+  ];
+
   return (
-    <FirebaseCMSApp
-      name={"Dumoto"}
-      authentication={myAuthenticator}
-      collections={[
-        productsCollection,
-        addStockCollection,
-        providerCollection,
-        categoryCollection,
-        usersCollection,
-        salesCollection,
-        productSalesCollection,
-      ]}
-      firebaseConfig={firebaseConfig}
-    />
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <FirebaseCMSApp
+        name={"Dumoto"}
+        authentication={myAuthenticator}
+        collections={[
+          productsCollection,
+          addStockCollection,
+          providerCollection,
+          categoryCollection,
+          usersCollection,
+          salesCollection,
+          productSalesCollection,
+        ]}
+        views={customViews}
+        firebaseConfig={firebaseConfig}
+      />
+    </LocalizationProvider>
   );
 }
